@@ -2,19 +2,24 @@
 using Fungus;
 using Cinemachine;
 using System;
+using System.Linq;
 
 [RequireComponent(typeof(Flowchart), typeof(CinemachineVirtualCamera))]
 public class Node : MonoBehaviour
 {
     public Action Finished;
+    public Action BeingAttacked;
 
     [SerializeField] private float finishLookAtDuration = 0.5F;
     [SerializeField] private float bobSmooth = 4F;
+    [SerializeField] private Transform enemyPositionToAttack = default;
 
+    private EnemyFollower[] enemiesFollowers = default;
     private CinemachineBrain brainCamera;
     private CinemachineBasicMultiChannelPerlin cameraNoise;
     private Flowchart flowchart;
     private Vector3 previousFramePosition = Vector3.zero;
+    private int currentZombie = 0;
 
     public bool IsExecuted { get; private set; }
     public bool CanBeExecuted => !IsExecuted && (Vector3.Distance(Camera.main.transform.position, transform.position) < 0.1F);
@@ -23,6 +28,7 @@ public class Node : MonoBehaviour
 
     private void Awake()
     {
+        enemiesFollowers = FindObjectsOfType<EnemyFollower>();
         brainCamera = FindObjectOfType<CinemachineBrain>();
         CinemachineVirtualCamera vCam = GetComponent<CinemachineVirtualCamera>();
         cameraNoise = vCam.GetCinemachineComponent<CinemachineBasicMultiChannelPerlin>();
@@ -59,5 +65,9 @@ public class Node : MonoBehaviour
 
         IsExecuted = true;
         flowchart.ExecuteBlock("Start");
+
+        //if (enemiesFollowers[currentZombie].canAttack)
+        //    BeingAttacked?.Invoke();
     }
+
 }

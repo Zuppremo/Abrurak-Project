@@ -1,76 +1,77 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using UnityEditor.XR;
 using UnityEngine;
 using UnityEngine.AI;
 
 public class EnemyFollower : MonoBehaviour
 {
+
+	public Action Attack;
+
 	[SerializeField] private float speed = 3f;
 	[SerializeField] private int attackDamage = 1;
-	private Transform playerPosition;
+	[SerializeField] private Transform rangeToAttackPlayer;
 	private NavMeshAgent navMesh = default;
-	private bool isFollowingPlayer = false;
-	private bool isAttacking = false;
+	private bool isMoving = false;
+	private bool attack = false;
+	private bool isReadyToAttack = false;
 
-	public bool IsFollowingPlayer => isFollowingPlayer;
-	public bool IsAttacking => isAttacking;
+	public bool IsMoving => isMoving;
+	public bool canAttack => attack;
+	public bool IsReadyToAttack => isReadyToAttack;
 
 	void Start()
 	{
-		playerPosition = GameObject.Find("Player").GetComponent<Transform>();
 		navMesh = GetComponent<NavMeshAgent>();
+		navMesh.acceleration = speed;
 	}
 
-    void FixedUpdate()
+    private void Update()
 	{
-		MoveToThePlayer();
-		AttackThePlayer();
-		LookThePlayer();
-		StopInPlayerPosition();
-		Debug.Log(isAttacking);
-	}
+		WalkToPlayerSight();
+		VerifyDistance();
+        //StopInPlayerPosition();
+        //Debug.Log(canAttack);
 
-	private void LookThePlayer()
-	{
-       // transform.LookAt(playerPosition.position);
-	}
-
-	private void MoveToThePlayer()
-	{
-		Vector3 positionToMove = Vector3.MoveTowards(transform.position, playerPosition.position, navMesh.acceleration * Time.deltaTime);
-		navMesh.destination = positionToMove;
-		isFollowingPlayer = true;
-	}
-
-	private void AttackThePlayer()
-	{
-		if (Vector2.Distance(transform.position, playerPosition.position) < 1f && !isAttacking)
-		{
-			isAttacking = true;
-			navMesh.acceleration = 0;
-			StartCoroutine(AttackDelay());
-		}
-		else
-			navMesh.acceleration = navMesh.acceleration;
-	}
-
-	private void StopInPlayerPosition()
-    {
-		if (Vector3.Distance(transform.position, playerPosition.position) < 1.5f)
-        {
-			speed = 0f;
-        }
     }
 
-	private IEnumerator AttackDelay()
+	private void WalkToPlayerSight()
 	{
-		if (isAttacking)
+		Vector3 positionToMove = Vector3.MoveTowards(transform.position, rangeToAttackPlayer.position, navMesh.acceleration * Time.deltaTime);
+		isMoving = true;
+		navMesh.destination = positionToMove;
+		VerifyDistance();
+	}
+
+	private void VerifyDistance()
+	{
+		if (Vector2.Distance(transform.position, rangeToAttackPlayer.position) < 0.1f)
 		{
-			yield return new WaitForSeconds(1);
-			PlayerHealth playerHp = FindObjectOfType<PlayerHealth>();
-			playerHp.TakeDamage(attackDamage);
-			yield return new WaitForSeconds(2);
-			isAttacking = false;
+			isMoving = false;
+			isReadyToAttack = true;
+			navMesh.isStopped = true;
+			//navMesh.isStopped = false;
+			//canAttack = false;
 		}
 	}
+
+	private void AttackPlayer()
+    {
+		Node node = FindObjectOfType<Node>();
+		if (node.IsExecuted)
+		{
+			isMoving = false;
+			attack = true;
+		}
+	}
+
+	private void VerifyIfAlreadyAttacking()
+    {
+		Node node = FindObjectOfType<Node>();
+
+		//if (node.isBeingAttacked)
+		//	attack = false;
+    }
 }

@@ -5,9 +5,7 @@ public class Gun : MonoBehaviour
 	public float damage = 10f;
 	public float range = 100f;
 	//public ParticleSystem muzzleFlash;
-	public Camera fpCam;
 	public GameObject impactParticles;
-	private AcidBall acidBall;
 
     void Update()
     {

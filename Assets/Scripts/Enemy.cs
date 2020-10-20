@@ -2,8 +2,8 @@
 
 public class Enemy : MonoBehaviour
 {
-	[SerializeField] private GameObject playerHitParticles;
-	[SerializeField] private GameObject acidBall;
+	[SerializeField] private GameObject playerHitParticles = default;
+	[SerializeField] private GameObject acidBall = default;
 	public Transform throwPoint;
 	public float health = 50f;
 	public float fireRange;
