@@ -26,7 +26,7 @@ public class Gun : MonoBehaviour
 		{
 			Debug.Log(hit.transform.name);
 
-			Enemy enemy = hit.transform.GetComponent<Enemy>();
+			OldEnemy enemy = hit.transform.GetComponent<OldEnemy>();
 			AcidBall acidBall = hit.transform.GetComponent<AcidBall>();
 
 			if (enemy != null)

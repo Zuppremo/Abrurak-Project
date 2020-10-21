@@ -185,6 +185,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   finishLookAtDuration: 0.5
+  bobSmooth: 4
+  enemies: []
 --- !u!114 &2784745085150683348
 MonoBehaviour:
   m_ObjectHideFlags: 0

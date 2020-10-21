@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-public class Enemy : MonoBehaviour
+public class OldEnemy : MonoBehaviour
 {
 	[SerializeField] private GameObject playerHitParticles = default;
 	[SerializeField] private GameObject acidBall = default;
