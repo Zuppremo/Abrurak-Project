@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
-public abstract class Enemy : MonoBehaviour
+public abstract class Enemy : MonoBehaviour, IDamageable
 {
     protected enum State
     {
@@ -17,7 +14,8 @@ public abstract class Enemy : MonoBehaviour
         Pain = 7
     }
 
-    public System.Action OnDied;
+    public System.Action Died;
+    public System.Action AttackPointReached;
 
     [Header("Health Parameters")]
     [SerializeField] private int maxHitPoints = 3;
@@ -54,12 +52,12 @@ public abstract class Enemy : MonoBehaviour
         animator.SetBool("IsDead", CurrentState == State.Dead);
     }
 
-    public void ReceiveDamage()
+    public void DoDamage(int damage)
     {
         if (currentHP <= 0)
             return;
 
-        currentHP--;
+        currentHP = Mathf.Clamp(currentHP - damage, 0, maxHitPoints);
 
         if (currentHP <= 0)
             OnDead();
@@ -76,7 +74,7 @@ public abstract class Enemy : MonoBehaviour
     protected virtual void OnDead()
     {
         CurrentState = State.Dead;
-        OnDied?.Invoke();
+        Died?.Invoke();
     }
 
     public abstract void Activate();

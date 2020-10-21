@@ -10,6 +10,7 @@ public class Node : MonoBehaviour
 
     [SerializeField] private float finishLookAtDuration = 0.5F;
     [SerializeField] private float bobSmooth = 4F;
+    [SerializeField] private float enemyKillFinishDelay = 1F;
     [SerializeField] private Enemy[] enemies = default;
 
     private CinemachineBrain brainCamera;
@@ -32,7 +33,10 @@ public class Node : MonoBehaviour
         BlockSignals.OnBlockEnd += OnBlockEnd;
 
         if (enemies != null && enemies.Length > 0)
-            Array.ForEach(enemies, e => e.OnDied += OnEnemyDied);
+        {
+            Array.ForEach(enemies, e => e.Died += OnEnemyDied);
+            Array.ForEach(enemies, e => e.AttackPointReached += OnAttackPointReached);
+        }
     }
 
     private void OnDestroy()
@@ -40,7 +44,15 @@ public class Node : MonoBehaviour
         BlockSignals.OnBlockEnd -= OnBlockEnd;
 
         if (enemies != null && enemies.Length > 0)
-            Array.ForEach(enemies, e => e.OnDied -= OnEnemyDied);
+        {
+            Array.ForEach(enemies, e => e.Died -= OnEnemyDied);
+            Array.ForEach(enemies, e => e.AttackPointReached -= OnAttackPointReached);
+        }
+    }
+
+    private void OnAttackPointReached()
+    {
+
     }
 
     private void Update()
@@ -53,16 +65,23 @@ public class Node : MonoBehaviour
         if (block.GetFlowchart() == flowchart && block.BlockName == "End")
         {
             if (enemies == null || enemies.Length == 0)
-                Finished?.Invoke();
+                FinishNode();
             else
-                Array.ForEach(enemies, e => e.Activate());
+                Array.ForEach(enemies, e => e.Activate ());
         }
     }
 
     private void OnEnemyDied()
     {
-        if (!Array.Exists(enemies, e => e.IsDead))
-            Finished?.Invoke();
+        bool hasEnemiesAlive = Array.Exists(enemies, e => !e.IsDead);
+
+        if (!hasEnemiesAlive)
+            Invoke(nameof(FinishNode), enemyKillFinishDelay);
+    }
+
+    private void FinishNode()
+    {
+        Finished?.Invoke();
     }
 
     public void SetActive(bool isActive)
