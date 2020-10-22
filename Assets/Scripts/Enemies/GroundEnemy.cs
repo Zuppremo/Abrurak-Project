@@ -2,17 +2,17 @@
 using UnityEngine;
 using UnityEngine.AI;
 
-public class GroundEnemy : Enemy
+public abstract class GroundEnemy : Enemy
 {
     [Header("References")]
-    [SerializeField] private Transform attackPoint = default;
+    [SerializeField] protected Transform readyToAttackPoint = default;
     [Header("Parameters")]
     [SerializeField] private float lookAtSmooth = 1.5F;
 
-    private Transform myTransform;
     private Transform cameraTransform;
-    private NavMeshAgent agent;
     private Flowchart cinematicFlowchart;
+    protected Transform myTransform;
+    protected NavMeshAgent agent;
 
     protected override void Awake()
     {
@@ -31,9 +31,9 @@ public class GroundEnemy : Enemy
 
     private void SetUpAgent()
     {
-        attackPoint.SetParent(null);
+        readyToAttackPoint.SetParent(null);
         agent = GetComponent<NavMeshAgent>();
-        agent.SetDestination(attackPoint.position);
+        agent.SetDestination(readyToAttackPoint.position);
         agent.isStopped = true;
     }
 
@@ -53,10 +53,10 @@ public class GroundEnemy : Enemy
         if (CurrentState == State.Dead)
             return;
 
-        if (CurrentState == State.MovingToReadyPoint && Vector3.Distance(myTransform.position, attackPoint.position) < 0.1F)
+        if (CurrentState == State.MovingToReadyPoint && Vector3.Distance(myTransform.position, readyToAttackPoint.position) < 0.1F)
             SetReadyToAttack();
 
-        if (CurrentState == State.AttackReady || CurrentState == State.Attacking)
+        if (CurrentState == State.AttackReady || CurrentState == State.Attacking || CurrentState == State.MovingToAttackPoint)
             LookAtMainCamera();
     }
 
@@ -97,7 +97,7 @@ public class GroundEnemy : Enemy
         CurrentState = State.AttackReady;
         agent.isStopped = true;
         agent.updateRotation = false;
-        AttackPointReached?.Invoke();
+        ReadyToAttack?.Invoke();
     }
 
     private void LookAtMainCamera()

@@ -12,11 +12,14 @@ public class Node : MonoBehaviour
     [SerializeField] private float bobSmooth = 4F;
     [SerializeField] private float enemyKillFinishDelay = 1F;
     [SerializeField] private Enemy[] enemies = default;
+    [SerializeField] private Transform attackPoint = default;
 
-    private CinemachineBrain brainCamera;
-    private CinemachineBasicMultiChannelPerlin cameraNoise;
-    private Flowchart flowchart;
+    private CinemachineBrain brainCamera = default;
+    private CinemachineBasicMultiChannelPerlin cameraNoise = default;
+    private Flowchart flowchart = default;
     private Vector3 previousFramePosition = Vector3.zero;
+    private int currentEnemyToAttack = 0;
+    private bool isInAttackMode = false;
 
     public bool IsExecuted { get; private set; }
     public bool CanBeExecuted => !IsExecuted && (Vector3.Distance(Camera.main.transform.position, transform.position) < 0.1F);
@@ -35,7 +38,7 @@ public class Node : MonoBehaviour
         if (enemies != null && enemies.Length > 0)
         {
             Array.ForEach(enemies, e => e.Died += OnEnemyDied);
-            Array.ForEach(enemies, e => e.AttackPointReached += OnAttackPointReached);
+            Array.ForEach(enemies, e => e.ReadyToAttack += OnEnemyReadyToAttack);
         }
     }
 
@@ -46,13 +49,38 @@ public class Node : MonoBehaviour
         if (enemies != null && enemies.Length > 0)
         {
             Array.ForEach(enemies, e => e.Died -= OnEnemyDied);
-            Array.ForEach(enemies, e => e.AttackPointReached -= OnAttackPointReached);
+            Array.ForEach(enemies, e => e.ReadyToAttack -= OnEnemyReadyToAttack);
         }
     }
 
-    private void OnAttackPointReached()
+    private void OnEnemyReadyToAttack()
     {
+        if (Array.Exists(enemies, e => e.IsAttacking))
+            return;
 
+        isInAttackMode = true;
+        SetEnemyToAttack(enemies[currentEnemyToAttack]);
+    }
+
+    private void SetEnemyToAttack(Enemy enemy)
+    {
+        if (enemy == null)
+            return;
+
+        if (enemy.IsDead || !enemy.IsReadyToAttack)
+            TrySetNextEnemy();
+        else
+            enemy.StartAttackSequence(attackPoint.position, TrySetNextEnemy);
+    }
+
+    private void TrySetNextEnemy()
+    {
+        currentEnemyToAttack++;
+
+        if (currentEnemyToAttack >= enemies.Length)
+            currentEnemyToAttack = 0;
+
+        SetEnemyToAttack(enemies[currentEnemyToAttack]);
     }
 
     private void Update()
@@ -77,6 +105,8 @@ public class Node : MonoBehaviour
 
         if (!hasEnemiesAlive)
             Invoke(nameof(FinishNode), enemyKillFinishDelay);
+        else if (isInAttackMode)
+            SetEnemyToAttack(Array.Find(enemies, e => e.IsReadyToAttack));
     }
 
     private void FinishNode()

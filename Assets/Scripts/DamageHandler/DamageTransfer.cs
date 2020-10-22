@@ -10,6 +10,7 @@ public class DamageTransfer : MonoBehaviour, IDamageable
     [SerializeField] private bool disableAfterDamage = true;
 
     private IDamageable rootDamageable = default;
+    private Collider myCollider;
 
     private void Awake()
     {
@@ -18,6 +19,8 @@ public class DamageTransfer : MonoBehaviour, IDamageable
 
         if (damageRoot != null)
             rootDamageable = damageRoot.GetComponent<IDamageable>();
+
+        myCollider = GetComponent<Collider>();
     }
 
     public void DoDamage(int damage)
@@ -36,5 +39,6 @@ public class DamageTransfer : MonoBehaviour, IDamageable
     public void Disable()
     {
         enabled = false;
+        myCollider.enabled = false;
     }
 }

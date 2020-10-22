@@ -15,7 +15,8 @@ public abstract class Enemy : MonoBehaviour, IDamageable
     }
 
     public System.Action Died;
-    public System.Action AttackPointReached;
+    public System.Action ReadyToAttack;
+    public System.Action AttackEnded;
 
     [Header("Health Parameters")]
     [SerializeField] private int maxHitPoints = 3;
@@ -23,14 +24,18 @@ public abstract class Enemy : MonoBehaviour, IDamageable
 
     private int currentHP = default;
     protected Animator animator = default;
+    private DamageTransfer[] allDamageTransfers;
 
     protected State CurrentState { get; set; }
     public bool IsDead => CurrentState == State.Dead;
+    public bool IsReadyToAttack => CurrentState == State.AttackReady;
+    public bool IsAttacking => CurrentState == State.Attacking || CurrentState == State.MovingToAttackPoint;
 
     protected virtual void Awake()
     {
         animator = GetComponent<Animator>();
         currentHP = maxHitPoints;
+        allDamageTransfers = GetComponentsInChildren<DamageTransfer>();
     }
 
     protected virtual void OnDestroy()
@@ -74,8 +79,10 @@ public abstract class Enemy : MonoBehaviour, IDamageable
     protected virtual void OnDead()
     {
         CurrentState = State.Dead;
+        System.Array.ForEach(allDamageTransfers, d => d.Disable());
         Died?.Invoke();
     }
 
     public abstract void Activate();
+    public abstract void StartAttackSequence(Vector3 attackPoint, System.Action AttackEnded);
 }
