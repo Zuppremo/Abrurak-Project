@@ -6,7 +6,7 @@ using UnityEngine.SceneManagement;
 
 public class SceneLoading : MonoBehaviour
 {
-	[SerializeField] private Image progressBar;
+	[SerializeField] private Image progressBar = default;
 
 	void Start()
     {

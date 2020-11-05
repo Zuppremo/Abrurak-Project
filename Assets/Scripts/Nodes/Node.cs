@@ -13,6 +13,11 @@ public class Node : MonoBehaviour
     [SerializeField] private float enemyKillFinishDelay = 1F;
     [SerializeField] private Enemy[] enemies = default;
     [SerializeField] private Transform attackPoint = default;
+    [SerializeField] private NoiseSettings cameraShakeSettings = default;
+    [SerializeField] private NoiseSettings cameraNoiseSettings = default;
+    [SerializeField] private float shakeTimer = 1F;
+    [SerializeField] private float shakeTimerTotal = 1F;
+    [SerializeField] private float startingIntensity = 1F;
 
     private CinemachineBrain brainCamera = default;
     private CinemachineBasicMultiChannelPerlin cameraNoise = default;
@@ -83,10 +88,13 @@ public class Node : MonoBehaviour
         SetEnemyToAttack(enemies[currentEnemyToAttack]);
     }
 
-    private void Update()
-    {
-        cameraNoise.m_AmplitudeGain = Mathf.Lerp(cameraNoise.m_AmplitudeGain, brainCamera.IsBlending ? 1 : 0, Time.deltaTime * bobSmooth);
-    }
+	private void Update()
+	{
+		cameraNoise.m_AmplitudeGain = Mathf.Lerp(cameraNoise.m_AmplitudeGain, brainCamera.IsBlending ? 1 : 0, Time.deltaTime * bobSmooth);
+		if (!brainCamera.IsBlending)
+			cameraNoise.m_NoiseProfile = cameraShakeSettings;
+
+	}
 
     private void OnBlockEnd(Block block)
     {
@@ -127,4 +135,21 @@ public class Node : MonoBehaviour
         IsExecuted = true;
         flowchart.ExecuteBlock("Start");
     }
+
+	public void ShakeCamera(float intensity, float time)
+	{
+		
+		cameraNoise.m_AmplitudeGain = intensity;
+		shakeTimerTotal = time;
+		shakeTimer = time;
+		if (shakeTimer > 0)
+		{
+			shakeTimer -= Time.deltaTime;
+			if (shakeTimer <= 0)
+				cameraNoise.m_AmplitudeGain = Mathf.Lerp(startingIntensity, 0, shakeTimer / shakeTimerTotal);
+
+		}
+	}
+
+	
 }

@@ -45,10 +45,10 @@ public class NodeManager : MonoBehaviour
 
         Node actualNode = allNodes[currentNode];
         Node nextNode = allNodes[currentNode + 1];
-        actualNode.MyTransform.DOKill();
+        actualNode.transform.DOKill();
 
         if (actualNode.FinishLookAtDuration > 0)
-            actualNode.MyTransform.DOLookAt(nextNode.MyTransform.position, actualNode.FinishLookAtDuration).OnComplete(SetActiveNextNode);
+            actualNode.transform.DOLookAt(nextNode.transform.position, actualNode.FinishLookAtDuration).OnComplete(SetActiveNextNode);
         else
             SetActiveNextNode();
     }

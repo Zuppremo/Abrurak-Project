@@ -12,10 +12,15 @@ public class Gun : MonoBehaviour
     [SerializeField] private float shootRange = 100.0f;
     [SerializeField] private float reloadDuration = 0.5F;
     [SerializeField] private GameObject impactParticles = default;
+	[SerializeField] private float fireRate = 1.5f;
+	[SerializeField] private float nextFire = 0;
+	
 
     private bool isReloading = false;
+	private Node node = FindObjectOfType<Node>();
 
     public int CurrentBullets { get; private set; }
+	public float ReloadDuration => reloadDuration;
 
     private void Awake()
     {
@@ -33,8 +38,9 @@ public class Gun : MonoBehaviour
 
     private void ProccessAndroidInput()
     {
-        if (Input.touchCount > 0)
+        if (Input.touchCount > 0 && Time.time > nextFire)
         {
+			nextFire = Time.time + fireRate;
             if (Input.touchCount == 1)
                 TryShoot();
             else if (Input.touchCount > 1)
@@ -44,8 +50,11 @@ public class Gun : MonoBehaviour
 
     private void ProccessEditorOrWindowsInput()
     {
-        if (Input.GetButtonDown("Fire1"))
+        if (Input.GetButtonDown("Fire1") && Time.time > nextFire)
+		{
+			nextFire = Time.time + fireRate;
             TryShoot();
+		}
 
         if (Input.GetButtonDown("Fire2"))
             TryReload();
@@ -93,8 +102,9 @@ public class Gun : MonoBehaviour
         if (Physics.Raycast(ray, out hit, shootRange))
         {
             IDamageable damageable = null;
-            
-            if (hit.collider.TryGetComponent(out damageable))
+
+
+			if (hit.collider.TryGetComponent(out damageable))
             {
                 damageable.DoDamage(damagePerBullet);
                 return true;

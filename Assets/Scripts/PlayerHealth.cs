@@ -8,11 +8,13 @@ public class PlayerHealth : MonoBehaviour
 	[SerializeField] private Image hP1 = default;
 	[SerializeField] private Image hP2 = default;
 	[SerializeField] private Image hP3 = default;
+	[SerializeField] private Image damageImage = default;
+	[SerializeField] private Image noBulletsImage = default;
 	public int startingHealth = 3;
 	public int currentHealth;
-	public Image damageImage = default;
 	public float flashSpeed;
 	public Color flashColour = new Color(1f, 0f, 0f, 0.1f);
+	public Color noBulletsColor = new Color();
 
 	private bool isDamaged = false;
 
