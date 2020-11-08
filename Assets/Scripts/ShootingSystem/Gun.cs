@@ -15,9 +15,7 @@ public class Gun : MonoBehaviour
 	[SerializeField] private float fireRate = 1.5f;
 	[SerializeField] private float nextFire = 0;
 	
-
     private bool isReloading = false;
-	private Node node = FindObjectOfType<Node>();
 
     public int CurrentBullets { get; private set; }
 	public float ReloadDuration => reloadDuration;

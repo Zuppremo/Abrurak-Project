@@ -9,18 +9,10 @@ public class Node : MonoBehaviour
     public Action Finished;
 
     [SerializeField] private float finishLookAtDuration = 0.5F;
-    [SerializeField] private float bobSmooth = 4F;
     [SerializeField] private float enemyKillFinishDelay = 1F;
     [SerializeField] private Enemy[] enemies = default;
     [SerializeField] private Transform attackPoint = default;
-    [SerializeField] private NoiseSettings cameraShakeSettings = default;
-    [SerializeField] private NoiseSettings cameraNoiseSettings = default;
-    [SerializeField] private float shakeTimer = 1F;
-    [SerializeField] private float shakeTimerTotal = 1F;
-    [SerializeField] private float startingIntensity = 1F;
 
-    private CinemachineBrain brainCamera = default;
-    private CinemachineBasicMultiChannelPerlin cameraNoise = default;
     private Flowchart flowchart = default;
     private Vector3 previousFramePosition = Vector3.zero;
     private int currentEnemyToAttack = 0;
@@ -33,9 +25,6 @@ public class Node : MonoBehaviour
 
     private void Awake()
     {
-        brainCamera = FindObjectOfType<CinemachineBrain>();
-        CinemachineVirtualCamera vCam = GetComponent<CinemachineVirtualCamera>();
-        cameraNoise = vCam.GetCinemachineComponent<CinemachineBasicMultiChannelPerlin>();
         MyTransform = transform;
         flowchart = GetComponent<Flowchart>();
         BlockSignals.OnBlockEnd += OnBlockEnd;
@@ -88,14 +77,6 @@ public class Node : MonoBehaviour
         SetEnemyToAttack(enemies[currentEnemyToAttack]);
     }
 
-	private void Update()
-	{
-		cameraNoise.m_AmplitudeGain = Mathf.Lerp(cameraNoise.m_AmplitudeGain, brainCamera.IsBlending ? 1 : 0, Time.deltaTime * bobSmooth);
-		if (!brainCamera.IsBlending)
-			cameraNoise.m_NoiseProfile = cameraShakeSettings;
-
-	}
-
     private void OnBlockEnd(Block block)
     {
         if (block.GetFlowchart() == flowchart && block.BlockName == "End")
@@ -135,21 +116,4 @@ public class Node : MonoBehaviour
         IsExecuted = true;
         flowchart.ExecuteBlock("Start");
     }
-
-	public void ShakeCamera(float intensity, float time)
-	{
-		
-		cameraNoise.m_AmplitudeGain = intensity;
-		shakeTimerTotal = time;
-		shakeTimer = time;
-		if (shakeTimer > 0)
-		{
-			shakeTimer -= Time.deltaTime;
-			if (shakeTimer <= 0)
-				cameraNoise.m_AmplitudeGain = Mathf.Lerp(startingIntensity, 0, shakeTimer / shakeTimerTotal);
-
-		}
-	}
-
-	
 }
