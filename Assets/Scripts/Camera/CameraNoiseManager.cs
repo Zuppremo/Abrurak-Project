@@ -11,7 +11,7 @@ public class CameraNoiseManager : MonoBehaviour
     [SerializeField] private NoiseSettings shootNoiseSettings = default;
 
     private CinemachineBrain brainCamera = default;
-    private CinemachineBasicMultiChannelPerlin cameraNoise = default;
+    private List<CinemachineBasicMultiChannelPerlin> cameraNoises = new List<CinemachineBasicMultiChannelPerlin>();
     private NoiseSettings headBobNoiseSettings = default;
     private bool isShooting = false;
     private Gun gun;
@@ -19,9 +19,15 @@ public class CameraNoiseManager : MonoBehaviour
     private void Awake()
     {
         brainCamera = FindObjectOfType<CinemachineBrain>();
-        CinemachineVirtualCamera vCam = GetComponent<CinemachineVirtualCamera>();
-        cameraNoise = vCam.GetCinemachineComponent<CinemachineBasicMultiChannelPerlin>();
-        headBobNoiseSettings = cameraNoise.m_NoiseProfile;
+        CinemachineVirtualCamera[] vCams = FindObjectsOfType<CinemachineVirtualCamera>();
+
+        for (int i = 0; i < vCams.Length; i++)
+        {
+            if (vCams[i].TryGetComponent<Node>(out Node node))
+                cameraNoises.Add(vCams[i].GetCinemachineComponent<CinemachineBasicMultiChannelPerlin>());
+        }
+        if (cameraNoises.Count > 0)
+            headBobNoiseSettings = cameraNoises[0].m_NoiseProfile;
         gun = FindObjectOfType<Gun>();
         gun.Fired += OnGunFired;
     }
@@ -34,22 +40,28 @@ public class CameraNoiseManager : MonoBehaviour
     private void OnGunFired(bool hasHit)
     {
         isShooting = true;
-        cameraNoise.m_NoiseProfile = shootNoiseSettings;
-        cameraNoise.m_AmplitudeGain = 1;
+        cameraNoises.ForEach(n =>
+        {
+            n.m_NoiseProfile = shootNoiseSettings;
+            n.m_AmplitudeGain = 1;
+        });
         CancelInvoke(nameof(CancelShoot));
         Invoke(nameof(CancelShoot), shootShakeDuration);
     }
 
     private void CancelShoot()
     {
-        cameraNoise.m_NoiseProfile = headBobNoiseSettings;
-        cameraNoise.m_AmplitudeGain = brainCamera.IsBlending ? 1 : 0;
+        cameraNoises.ForEach(n => 
+        {
+            n.m_NoiseProfile = headBobNoiseSettings;
+            n.m_AmplitudeGain = brainCamera.IsBlending ? 1 : 0;
+        });
         isShooting = false;
     }
 
     private void Update()
     {
         if (!isShooting)
-            cameraNoise.m_AmplitudeGain = Mathf.Lerp(cameraNoise.m_AmplitudeGain, brainCamera.IsBlending ? 1 : 0, Time.deltaTime * bobSmooth);
+            cameraNoises.ForEach(n => n.m_AmplitudeGain = Mathf.Lerp(cameraNoises[0].m_AmplitudeGain, brainCamera.IsBlending ? 1 : 0, Time.deltaTime * bobSmooth));
     }
 }
