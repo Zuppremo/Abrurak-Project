@@ -9,12 +9,11 @@ public class PlayerHealth : MonoBehaviour
 	[SerializeField] private Image hP2 = default;
 	[SerializeField] private Image hP3 = default;
 	[SerializeField] private Image damageImage = default;
-	//[SerializeField] private Image noBulletsImage = default;
+
 	public int startingHealth = 3;
 	public int currentHealth;
 	public float flashSpeed;
-	public Color flashColour = new Color(1f, 0f, 0f, 0.1f);
-	public Color noBulletsColor = new Color();
+	public Color damageFlashColour = new Color(1f, 0f, 0f, 0.1f);
 
 	private bool isDamaged = false;
 
@@ -26,7 +25,7 @@ public class PlayerHealth : MonoBehaviour
 	private void Update()
     {
 		if (isDamaged)
-			damageImage.color = flashColour;
+			damageImage.color = damageFlashColour;
 		else
 			damageImage.color = Color.Lerp(damageImage.color, Color.clear, flashSpeed * Time.deltaTime);
 

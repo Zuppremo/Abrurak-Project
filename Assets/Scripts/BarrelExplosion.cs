@@ -28,7 +28,7 @@ public class BarrelExplosion : MonoBehaviour, IDamageable
 		if (hasExploded)
 			return;
 
-		Instantiate(explosionParticles, transform.position, transform.rotation);
+		GameObject particlesGO = Instantiate(explosionParticles, transform.position, transform.rotation);
 		audioSource.PlayOneShot(explosionSound);
 
 		Collider[] colliders = Physics.OverlapSphere(transform.position, radius);
@@ -49,7 +49,7 @@ public class BarrelExplosion : MonoBehaviour, IDamageable
 		}
 
 		Destroy(gameObject,1f);
-		Destroy(explosionParticles, 1f);
+		Destroy(particlesGO, 1f);
 	}
 
 	public void DoDamage(int damage)

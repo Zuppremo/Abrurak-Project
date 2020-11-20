@@ -63,7 +63,6 @@ public class DistanceEnemy : GroundEnemy
 	{
 		//Instantiate(acidBall, attackPosition.position, attackPosition.rotation);
 
-
 	}
 
 }

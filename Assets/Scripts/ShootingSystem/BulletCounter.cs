@@ -7,9 +7,9 @@ using DG.Tweening;
 public class BulletCounter : MonoBehaviour
 {
 	[SerializeField] private Image[] images;
-	[SerializeField] private Image noBulletsImage = default;
 	[SerializeField] private Text reloadingText = default;
-	[SerializeField] private Color noBulletsColor = new Color();
+	//[SerializeField] private Text reloadingRequiredText = default;
+	//[SerializeField] private Color reloadingTextColor = new Color();
 	[SerializeField] private float flashHideDuration = 0.5F;
 
 	private Gun gun;
@@ -17,6 +17,7 @@ public class BulletCounter : MonoBehaviour
 	private void Awake()
 	{
 		reloadingText.gameObject.SetActive(false);
+		//reloadingRequiredText.gameObject.SetActive(false);
 		StopAllCoroutines();
 		gun = FindObjectOfType<Gun>();
 		images = GetComponentsInChildren<Image>();
@@ -40,15 +41,15 @@ public class BulletCounter : MonoBehaviour
 			images[i].gameObject.SetActive(true);
 		}
 		StartCoroutine(ReloadTime());
-		noBulletsImage.DOKill();
-		noBulletsImage.DOFade(0, flashHideDuration);
+		//reloadingRequiredText.DOKill();
+		//reloadingRequiredText.DOFade(0, flashHideDuration);
 	}
 	
 	private void OnReloadRequired()
 	{
-		noBulletsImage.DOKill();
-		noBulletsImage.color = noBulletsColor; 
-		noBulletsImage.DOFade(0,flashHideDuration);
+		//reloadingRequiredText.DOKill();
+		//reloadingRequiredText.color = reloadingTextColor;
+		//reloadingRequiredText.DOFade(1,flashHideDuration);
 	}
 
 	private void OnDestroy()

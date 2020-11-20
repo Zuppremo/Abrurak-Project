@@ -11,7 +11,6 @@ public class GunSounds : MonoBehaviour
 
 	private Gun gun;
 	private AudioSource audioSource;
-
 	
     private void Awake()
     {
